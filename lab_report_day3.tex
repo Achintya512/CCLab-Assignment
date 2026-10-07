@@ -1,0 +1,88 @@
+\documentclass[journal,onecolumn]{IEEEtran}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{url}
+
+\begin{document}
+
+\title{Cloud VM Resource Forecasting and Proactive Provisioning: Lab Evaluation Report (Day 3)}
+
+\author{Your Name,~\IEEEmembership{Student,~Institution}
+\thanks{This report was compiled for the Day 3 Lab Evaluation of the Machine Learning Cloud Provisioning project, October 7, 2026.}}
+
+\markboth{Lab Evaluation Report,~Vol.~1, No.~3, October~2026}%
+{Cloud VM Resource Forecasting}
+
+\maketitle
+
+\begin{abstract}
+This report details the progress and implementation of a Machine Learning-based Cloud Virtual Machine (VM) Resource Forecasting application, up to the Day 3 lab evaluation. The project aims to predict future CPU resource requirements to enable proactive VM provisioning in cloud data centers. Utilizing real-world AWS CloudWatch traces from the Numenta Anomaly Benchmark (NAB), the system trains and compares Linear Regression, Random Forest, and Gradient Boosting models. On Day 3, a simulation environment and an interactive Streamlit dashboard were successfully integrated to visualize the trade-offs between Resource Utilization and Service Level Agreement (SLA) violations under varying safety margins.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Cloud Computing, Machine Learning, Resource Forecasting, Virtual Machines, Proactive Provisioning, Streamlit.
+\end{IEEEkeywords}
+
+\IEEEpeerreviewmaketitle
+
+\section{Introduction}
+\IEEEPARstart{I}{n} cloud computing environments, efficient resource allocation is critical to maintaining a balance between operational costs and system performance. Over-provisioning leads to idle resources and financial waste, while under-provisioning results in system degradation and Service Level Agreement (SLA) violations.
+
+The primary objective of this project is to develop an automated forecasting application that predicts future CPU demand, allowing the system to proactively spin up the exact number of standard Virtual Machines (VMs) required before the demand occurs. 
+
+\subsection{Day 1 Progress: Initial Setup and Synthetic Data}
+During the first day of evaluation, the initial project architecture was established. A synthetic workload generator was created to simulate daily seasonal patterns, trends, and noise for CPU and memory usage. The foundation of the machine learning pipeline was laid out to ingest this time-series data.
+
+\section{Methodology and Data Integration}
+\subsection{Day 2 Progress: Real-World Data and ML Pipeline}
+On the second day, the project transitioned from synthetic data to authentic cloud traces to improve the practical validity of the models. 
+
+\subsubsection{Dataset Selection}
+The data ingestion module was refactored to fetch real-world AWS CloudWatch EC2 CPU utilization traces from the public Numenta Anomaly Benchmark (NAB) repository. Multiple datasets were integrated, including general compute workloads, bursting workloads, and RDS database server traces.
+
+\subsubsection{Machine Learning Models}
+A robust forecasting pipeline was implemented. The dataset was transformed to include lagged features (e.g., historical CPU usage over previous intervals) and time-based features (e.g., hour of the day). Three regression models were trained and evaluated:
+\begin{itemize}
+    \item \textbf{Linear Regression:} Serving as the baseline model.
+    \item \textbf{Random Forest Regressor:} To capture non-linear relationships and complex daily workload patterns.
+    \item \textbf{Gradient Boosting Regressor:} To minimize sequential prediction errors, typically yielding the lowest Root Mean Square Error (RMSE).
+\end{itemize}
+
+\section{Day 3 Evaluation: Simulation and Dashboarding}
+The focus of the Day 3 evaluation was integrating the predictive models with a simulated cloud environment and developing a user interface.
+
+\subsection{Proactive Provisioning Simulator}
+A simulation module was developed to translate CPU predictions into actionable provisioning commands. The simulator takes the predicted CPU load ($P$), adds a configurable safety margin ($S$), and calculates the required number of VMs ($N$) given a fixed VM capacity ($C$):
+\begin{equation}
+    N = \lceil \frac{P \times (1 + S)}{C} \rceil
+\end{equation}
+
+The simulator evaluates the system by tracking two primary metrics:
+\begin{itemize}
+    \item \textbf{Resource Utilization (\%):} The ratio of actual CPU usage to the total provisioned capacity.
+    \item \textbf{SLA Violations:} Discrete events where the actual CPU demand exceeded the provisioned capacity, indicating potential downtime.
+\end{itemize}
+
+\subsection{Streamlit Dashboard Integration}
+An interactive web dashboard was built using Streamlit. The dashboard allows users to dynamically select between four different AWS datasets. Upon selection, the application automatically retrains the models, evaluates their RMSE, and plots short-term forecasts against actual historical usage using Plotly.
+
+Users can manipulate the Safety Margin slider in real-time to observe the trade-off between maximizing Resource Utilization (cost savings) and minimizing SLA Violations (reliability).
+
+\section{Conclusion}
+By the conclusion of Day 3, a complete end-to-end cloud forecasting and provisioning application was successfully implemented. The integration of real AWS datasets, combined with an interactive simulation dashboard, provides a practical tool for analyzing the financial and performance impacts of AI-driven proactive cloud scaling. Future work will involve integrating memory metrics and deploying the models as a REST API.
+
+\section*{Acknowledgment}
+The author would like to acknowledge the use of the Numenta Anomaly Benchmark (NAB) open-source dataset for providing authentic AWS CloudWatch traces.
+
+\begin{thebibliography}{1}
+
+\bibitem{NAB}
+A. Lavin and S. Ahmad, \emph{Evaluating Real-Time Anomaly Detection Algorithms -- The Numenta Anomaly Benchmark}, 14th International Conference on Machine Learning and Applications (ICMLA), 2015.
+
+\bibitem{CloudComputing}
+R. Buyya, C. S. Yeo, S. Venugopal, J. Broberg, and I. Brandic, \emph{Cloud computing and emerging IT platforms: Vision, hype, and reality for delivering computing as the 5th utility}, Future Generation Computer Systems, vol. 25, no. 6, pp. 599-616, 2009.
+
+\end{thebibliography}
+
+\end{document}
